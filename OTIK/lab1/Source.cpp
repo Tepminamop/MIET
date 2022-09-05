@@ -7,7 +7,9 @@
 using namespace std;
 
 void to_archive() {
-	FILE* file = fopen("test.txt", "rb");
+	char file_name[40] = "baron.jpg";
+	const char file_name_str[]= "baron.jpg";
+	FILE* file = fopen(file_name_str, "rb");
 	FILE* archive = fopen("archive.imi", "wb");
 	uint8_t signature[6];
 	signature[0] = 0x69;
@@ -28,25 +30,20 @@ void to_archive() {
 	fwrite(&version, 1, 1, archive);
 
 	//write test file size to archive
-	FILE* test = fopen("test.txt", "rb");
+	FILE* test = fopen(file_name_str, "rb");
 	int file_size = 0;
 
 	uint8_t one_byte;
 	while (fread(&one_byte, sizeof(one_byte), 1, test)) {
 		file_size++;
-
-		if (one_byte == 0xFF) {
-			break;
-		}
 	}
 	fwrite(&file_size, sizeof(int), 1, archive);
+	//unsigned char file_name[40];//40 byte
+	fwrite(&file_name, 40, 1, archive);
 	fclose(test);
 
 	//write data from file to archive
 	while (fread(&one_byte, sizeof(one_byte), 1, file)) {
-		if (one_byte == 0xFF)
-			break;
-		else
 			fwrite(&one_byte, 1, 1, archive);
 	}
 
@@ -55,7 +52,6 @@ void to_archive() {
 }
 
 void from_archive() {
-	FILE* file = fopen("result.txt", "wb");
 	FILE* archive = fopen("archive.imi", "rb");
 	uint8_t signature[6];
 	signature[0] = 0x69;
@@ -84,6 +80,11 @@ void from_archive() {
 	uint32_t size;
 	fread(&size, sizeof(int), 1, archive);
 
+	char file_name[40];
+	fread(&file_name, 40, 1, archive);
+
+	FILE* file = fopen(file_name, "wb");
+
 	//write data from archive to file
 	for (uint32_t i = 0; i < size; i++) {
 		uint8_t one_byte;
@@ -93,9 +94,6 @@ void from_archive() {
 
 	uint8_t one_byte;
 	while (fread(&one_byte, sizeof(one_byte), 1, archive)) {
-		if (one_byte == 0xFF)
-			break;
-		else
 			fwrite(&one_byte, 1, 1, archive);
 	}
 
