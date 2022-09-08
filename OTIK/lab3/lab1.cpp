@@ -6,6 +6,7 @@
 #include <map>
 #include <algorithm>
 #include <bitset>
+#include <cmath>
 
 using namespace std;
 
@@ -197,7 +198,7 @@ void compress_archive() {
 
 	for (auto const& x : frequency) {
 		pair<double, uint8_t> pair;
-		pair.first = x.second;
+		pair.first = x.second / size;
 		pair.second = x.first;
 		px.push_back(pair);
 	}
@@ -211,9 +212,17 @@ void compress_archive() {
 	}
 
 	//переводим bx в двоичную систему
+	vector<string> binary_bx;
+	for (int i = 0; i < bx.size(); i++) {
+		string binary = to_binary(bx[i], 30);
+		binary_bx.push_back(binary);
+	}
 
-
-	//считаем Lx по формуле
+	//считаем Lx по формуле (Lx = cell(-log(px)))
+	vector<int> lx;
+	for (int i = 0; i < bx.size(); i++) {
+		//int l = std::log(px[i]);
+	}
 }
 
 void decompress_archive() {
