@@ -138,11 +138,6 @@ void compress_archive() {
 	cout << "Input archive name" << '\n';
 	cin >> archive_name;
 
-	//input compressed archive name
-	char compressed_archive_name[40];
-	cout << "Input compressed archive name" << '\n';
-	cin >> compressed_archive_name;
-
 	//open archive
 	FILE* archive = fopen(archive_name, "rb");
 
@@ -172,16 +167,6 @@ void compress_archive() {
 	char file_name[40];
 	fread(&file_name, 40, 1, archive);
 
-	//begin compressing
-	FILE* compressed_archive = fopen(compressed_archive_name, "wb");
-
-	//write signature to compressed archive
-	for (int i = 0; i < 6; i++)
-		fwrite(&signature[i], 1, 1, compressed_archive);
-
-	//write version to compressed archive
-	fwrite(&version, 1, 1, compressed_archive);
-
 	//посчитать частоту каждого байта (как в лр1 по зи) и записать частоту в мапу, сопоставить каждому байту свой код и записать это все в другую мапу, при декодирвоании находить первый (при чтении слева направо) набор символов, который удовлетворяет коду какого-го байта и записать в файл декодированный байт, проверить работоспособность
 
 	//считываем байты из архива и находим частоту каждого байта, записывая в мапу
@@ -202,27 +187,128 @@ void compress_archive() {
 		pair.second = x.first;
 		px.push_back(pair);
 	}
-
 	sort(px.begin(), px.end(), std::greater<pair<double, uint8_t>>());
 
 	//нашли массив Px, теперь найдем массив Bx (формулы на сайте)
-	vector<double> bx(px.size(), 0);
+	vector<pair<double, uint8_t>> bx(px.size(), {0, 0});
+	bx[0].second = px[0].second;
 	for (int i = 1; i < bx.size(); i++) {
-		bx[i] = bx[i - 1] + px[i - 1].first;
+		bx[i].first = bx[i - 1].first + px[i - 1].first;
+		bx[i].second = px[i].second;
 	}
 
 	//переводим bx в двоичную систему
-	vector<string> binary_bx;
+	vector<pair<string, uint8_t>> binary_bx;
 	for (int i = 0; i < bx.size(); i++) {
-		string binary = to_binary(bx[i], 30);
-		binary_bx.push_back(binary);
+		string binary = to_binary(bx[i].first, 30);
+		binary_bx.push_back({ binary, bx[i].second });
 	}
 
 	//считаем Lx по формуле (Lx = cell(-log(px)))
-	vector<int> lx;
-	for (int i = 0; i < bx.size(); i++) {
-		//int l = std::log(px[i]);
+	vector<pair<uint8_t, int>> lx;
+	for (int i = 0; i < px.size(); i++) {
+		int l = ceil(-log(px[i].first));
+		lx.push_back({px[i].second, l});
 	}
+
+	//записываем коды в мапу
+	map<uint8_t, string> byte_to_code;
+	map<string, uint8_t> code_to_byte;
+
+	for (int i = 0; i < lx.size(); i++) {
+		string code;
+		for (int j = 0; j < lx[i].second; j++) {
+			code.push_back(binary_bx[i].first[j]);
+		}
+		byte_to_code[lx[i].first] = code;
+		code_to_byte[code] = lx[i].first;
+	}
+
+	//
+	//сожмем архив и запишем результат в отдельынй файл
+	//
+	
+	//open old archive amd new archive
+	char compressed_archive_name[40];
+	cout << "input compressed archive name" << '\n';
+	cin >> compressed_archive_name;
+	FILE* old_archive = fopen(archive_name, "rb");
+
+	//check old archive signature
+	for (int i = 0; i < 6; i++) {
+		uint8_t current;
+		fread(&current, 1, 1, old_archive);
+
+		if (current != signature[i]) {
+			cout << "error" << '\n';
+			return;
+		}
+	}
+
+	//check old file version
+	uint8_t old_version;
+	fread(&old_version, 1, 1, old_archive);
+
+	//read test file size from old archive
+	uint32_t old_size;
+	fread(&old_size, sizeof(int), 1, old_archive);
+
+	//read file_name from old archive
+	char old_file_name[40];
+	fread(&old_file_name, 40, 1, old_archive);
+
+	FILE* compressed_archive = fopen(compressed_archive_name, "wb");
+
+	//write signature to compressed archive
+	for (int i = 0; i < 6; i++)
+		fwrite(&signature[i], 1, 1, compressed_archive);
+
+	//write version to compressed archive
+	fwrite(&old_version, 1, 1, compressed_archive);
+
+	//write file size to compressed archive
+	fwrite(&old_size, sizeof(int), 1, compressed_archive);
+
+	//write file_name to compressed archive
+	fwrite(&old_file_name, 40, 1, compressed_archive);
+
+	//compressing
+	bitset<8> byte;
+	int pointer = 7;
+	for (uint32_t i = 0; i < old_size; i++) {
+		uint8_t one_byte;
+		fread(&one_byte, sizeof(one_byte), 1, old_archive);
+		//write with codes
+		string code = byte_to_code[one_byte];
+		for (int j = 0; j < code.size(); j++) {
+			if (pointer < 0) {
+				pointer = 7;
+				byte.reset();
+				unsigned long ulong = byte.to_ulong();
+				unsigned char c = static_cast<unsigned char>(ulong);
+				fwrite(&c, 1, 1, compressed_archive);
+			}
+
+			if (code[j] == '1') {
+				byte[pointer] = 1;
+				pointer--;
+			}
+			else {
+				byte[pointer] = 0;
+				pointer--;
+			}
+		}
+	}
+
+	if (pointer != 7) {
+		pointer = 7;
+		byte.reset();
+		unsigned long ulong = byte.to_ulong();
+		unsigned char c = static_cast<unsigned char>(ulong);
+		fwrite(&c, 1, 1, compressed_archive);
+	}
+
+	//end?
 }
 
 void decompress_archive() {
@@ -242,9 +328,6 @@ int main() {
 	auto b = std::bitset<64>(bx);
 	cout << b << '\n';
 	*/
-	double value = 0.70;
-	string ans = to_binary(value, 30);
-	cout << ans << '\n';
 
 	bool mode;
 	cout << "Input 0 if yow want to make archive from file, else input 1\n";
@@ -252,6 +335,13 @@ int main() {
 
 	if (!mode) to_archive();
 	else from_archive();
+
+	bool mode_compress;
+	cout << "Input 0 if yow want to compress archive, else input 1\n";
+	cin >> mode_compress;
+
+	if (!mode_compress) compress_archive();
+	else decompress_archive();
 
 	return 0;
 }
