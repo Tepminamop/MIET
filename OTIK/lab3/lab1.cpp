@@ -9,6 +9,25 @@
 
 using namespace std;
 
+//workas for numbers between 0 and 1, number starts with 0.
+string to_binary(double num, int precision) {
+	string ans;
+	for (int i = 0; i < precision; i++) {
+		if (num == 0) break;
+
+		num *= 2;
+		if (num >= 1) {
+			ans.push_back('1');
+			num -= 1;
+		}
+		else {
+			ans.push_back('0');
+		}
+	}
+
+	return ans;
+}
+
 void to_archive() {
 	//input file_name
 	char file_name[40];
@@ -204,7 +223,7 @@ void decompress_archive() {
 int main() {
 	//to binary
 	/*
-	double a = 1;
+	double a = 1.0;
 	unsigned long long bx = 0;
 	// убедимся, что у нас они одинакового размера.
 	static_assert(sizeof(a) == sizeof(bx), "sizeof(double) == sizeof(ull)");
@@ -214,8 +233,9 @@ int main() {
 	auto b = std::bitset<64>(bx);
 	cout << b << '\n';
 	*/
-	float f = 4.5f;
-	cout << bitset<sizeof f * 8>(*(long unsigned int*)(&f)) << endl;
+	double value = 0.70;
+	string ans = to_binary(value, 30);
+	cout << ans << '\n';
 
 	bool mode;
 	cout << "Input 0 if yow want to make archive from file, else input 1\n";
