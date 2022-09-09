@@ -190,7 +190,7 @@ void compress_archive() {
 	sort(px.begin(), px.end(), std::greater<pair<double, uint8_t>>());
 
 	//нашли массив Px, теперь найдем массив Bx (формулы на сайте)
-	vector<pair<double, uint8_t>> bx(px.size(), {0, 0});
+	vector<pair<double, uint8_t>> bx(px.size(), { 0, 0 });
 	bx[0].second = px[0].second;
 	for (int i = 1; i < bx.size(); i++) {
 		bx[i].first = bx[i - 1].first + px[i - 1].first;
@@ -208,7 +208,7 @@ void compress_archive() {
 	vector<pair<uint8_t, int>> lx;
 	for (int i = 0; i < px.size(); i++) {
 		int l = ceil(-log(px[i].first));
-		lx.push_back({px[i].second, l});
+		lx.push_back({ px[i].second, l });
 	}
 
 	//записываем коды в мапу
@@ -227,7 +227,7 @@ void compress_archive() {
 	//
 	//сожмем архив и запишем результат в отдельынй файл
 	//
-	
+
 	//open old archive amd new archive
 	char compressed_archive_name[40];
 	cout << "input compressed archive name" << '\n';
@@ -283,8 +283,8 @@ void compress_archive() {
 		for (int j = 0; j < code.size(); j++) {
 			if (pointer < 0) {
 				pointer = 7;
-				byte.reset();
 				unsigned long ulong = byte.to_ulong();
+				byte.reset();
 				unsigned char c = static_cast<unsigned char>(ulong);
 				fwrite(&c, 1, 1, compressed_archive);
 			}
@@ -302,8 +302,8 @@ void compress_archive() {
 
 	if (pointer != 7) {
 		pointer = 7;
-		byte.reset();
 		unsigned long ulong = byte.to_ulong();
+		byte.reset();
 		unsigned char c = static_cast<unsigned char>(ulong);
 		fwrite(&c, 1, 1, compressed_archive);
 	}
