@@ -199,7 +199,8 @@ void compress_archive() {
 
 	//переводим bx в двоичную систему
 	vector<pair<string, uint8_t>> binary_bx;
-	for (int i = 0; i < bx.size(); i++) {
+	binary_bx.push_back({"000000000000000000000000000000", bx[0].second});
+	for (int i = 1; i < bx.size(); i++) {
 		string binary = to_binary(bx[i].first, 30);
 		binary_bx.push_back({ binary, bx[i].second });
 	}
@@ -329,19 +330,19 @@ int main() {
 	cout << b << '\n';
 	*/
 
-	bool mode;
+	int mode;
 	cout << "Input 0 if yow want to make archive from file, else input 1\n";
 	cin >> mode;
 
-	if (!mode) to_archive();
-	else from_archive();
+	if (mode == 0) to_archive();
+	else if (mode == 1) from_archive();
 
-	bool mode_compress;
+	int mode_compress;
 	cout << "Input 0 if yow want to compress archive, else input 1\n";
 	cin >> mode_compress;
 
-	if (!mode_compress) compress_archive();
-	else decompress_archive();
+	if (mode_compress == 0) compress_archive();
+	else if (mode_compress == 1) decompress_archive();
 
 	return 0;
 }
