@@ -208,7 +208,7 @@ void compress_archive(map<uint8_t, string>& byte_to_code, map<string, uint8_t>& 
 	//������� Lx �� ������� (Lx = ceil(-log(px)))
 	vector<pair<uint8_t, int>> lx;
 	for (int i = 0; i < px.size(); i++) {
-		int l = ceil(-1 * log(px[i].first)) + 1;
+		int l = ceil(-1 * log(px[i].first) / log(2));
 		lx.push_back({ px[i].second, l });
 	}
 
@@ -263,7 +263,7 @@ void compress_archive(map<uint8_t, string>& byte_to_code, map<string, uint8_t>& 
 	//write signature to compressed archive
 	for (int i = 0; i < 6; i++)
 		fwrite(&signature[i], 1, 1, compressed_archive);
-
+	
 	//write version to compressed archive
 	fwrite(&old_version, 1, 1, compressed_archive);
 
@@ -394,10 +394,13 @@ void decompress_archive(map<uint8_t, string>& byte_to_code, map<string, uint8_t>
 	}
 	cout << all_bits.size() << endl;
 	string tmp;
+	int count = size;
 	for (int i = 0; i < all_bits.size(); i++) {
+		if (count == 0) break;
 		tmp.push_back(all_bits[i]);
 		if (code_to_byte.find(tmp) != code_to_byte.end()) {
 			fwrite(&code_to_byte[tmp], 1, 1, decompressed_archive);
+			count--;
 			tmp.clear();
 		}
 	}
