@@ -10,7 +10,7 @@
 
 using namespace std;
 
-//workas for numbers between 0 and 1, number starts with 0.
+//works for numbers between 0 and 1, number starts with 0.
 string to_binary(double num, int precision) {
 	string ans;
 	for (int i = 0; i < precision; i++) {
@@ -205,10 +205,10 @@ void compress_archive(map<uint8_t, string>& byte_to_code, map<string, uint8_t>& 
 		binary_bx.push_back({ binary, bx[i].second });
 	}
 
-	//������� Lx �� ������� (Lx = cell(-log(px)))
+	//������� Lx �� ������� (Lx = ceil(-log(px)))
 	vector<pair<uint8_t, int>> lx;
 	for (int i = 0; i < px.size(); i++) {
-		int l = ceil(-log(px[i].first));
+		int l = ceil(-1 * log(px[i].first)) + 1;
 		lx.push_back({ px[i].second, l });
 	}
 
@@ -301,7 +301,7 @@ void compress_archive(map<uint8_t, string>& byte_to_code, map<string, uint8_t>& 
 		}
 	}
 
-	if (pointer != 7) {
+	if (pointer <= 7) {
 		pointer = 7;
 		unsigned long ulong = byte.to_ulong();
 		byte.reset();
@@ -310,8 +310,12 @@ void compress_archive(map<uint8_t, string>& byte_to_code, map<string, uint8_t>& 
 	}
 
 	//end?
+	fclose(archive);
+	fclose(old_archive);
+	fclose(compressed_archive);
 }
 
+//stop with file size
 void decompress_archive(map<uint8_t, string>& byte_to_code, map<string, uint8_t>& code_to_byte) {
 	cout << byte_to_code.size() << " " << code_to_byte.size() << '\n';
 	//input archive name
@@ -429,9 +433,10 @@ int main() {
 	int mode_compress;
 	cout << "Input 0 if yow want to compress archive, else input 1\n";
 	cin >> mode_compress;
-
-	if (mode_compress == 0) compress_archive(byte_to_code, code_to_byte);
-	else if (mode_compress == 1) decompress_archive(byte_to_code, code_to_byte);
+	cout << "compress archive" << '\n';
+	/*if (mode_compress == 0)*/ compress_archive(byte_to_code, code_to_byte);
+	cout << "decompress archive" << '\n';
+	/*else if (mode_compress == 1)*/ decompress_archive(byte_to_code, code_to_byte);
 
 	return 0;
 }
