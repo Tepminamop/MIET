@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+п»ї#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <stdint.h>
 #include <windows.h>
@@ -132,7 +132,7 @@ void from_archive() {
 	fclose(file);
 }
 
-void compress_archive() {
+void compress_archive(map<uint8_t, string>& byte_to_code, map<string, uint8_t>& code_to_byte) {
 	//input archive name
 	char archive_name[40];
 	cout << "Input archive name" << '\n';
@@ -167,10 +167,10 @@ void compress_archive() {
 	char file_name[40];
 	fread(&file_name, 40, 1, archive);
 
-	//посчитать частоту каждого байта (как в лр1 по зи) и записать частоту в мапу, сопоставить каждому байту свой код и записать это все в другую мапу, при декодирвоании находить первый (при чтении слева направо) набор символов, который удовлетворяет коду какого-го байта и записать в файл декодированный байт, проверить работоспособность
+	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ пїЅ пїЅпїЅ1 пїЅпїЅ пїЅпїЅ) пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ) пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
-	//считываем байты из архива и находим частоту каждого байта, записывая в мапу
-	map<uint8_t, double> frequency;//double чтобы потом поделить полученное значение на size
+	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ
+	map<uint8_t, double> frequency;//double пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ size
 
 	for (uint32_t i = 0; i < size; i++) {
 		uint8_t one_byte;
@@ -178,7 +178,7 @@ void compress_archive() {
 		frequency[one_byte]++;
 	}
 
-	//переписываем частоты из мапы в вектор и соритруем по невозрастанию (greater or reverse) (vector<pair<double, byte>>)
+	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (greater or reverse) (vector<pair<double, byte>>)
 	vector<pair<double, uint8_t>> px;
 
 	for (auto const& x : frequency) {
@@ -189,7 +189,7 @@ void compress_archive() {
 	}
 	sort(px.begin(), px.end(), std::greater<pair<double, uint8_t>>());
 
-	//нашли массив Px, теперь найдем массив Bx (формулы на сайте)
+	//пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ Px, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ Bx (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ)
 	vector<pair<double, uint8_t>> bx(px.size(), { 0, 0 });
 	bx[0].second = px[0].second;
 	for (int i = 1; i < bx.size(); i++) {
@@ -197,24 +197,24 @@ void compress_archive() {
 		bx[i].second = px[i].second;
 	}
 
-	//переводим bx в двоичную систему
+	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ bx пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	vector<pair<string, uint8_t>> binary_bx;
-	binary_bx.push_back({"000000000000000000000000000000", bx[0].second});
+	binary_bx.push_back({ "000000000000000000000000000000", bx[0].second });
 	for (int i = 1; i < bx.size(); i++) {
 		string binary = to_binary(bx[i].first, 30);
 		binary_bx.push_back({ binary, bx[i].second });
 	}
 
-	//считаем Lx по формуле (Lx = cell(-log(px)))
+	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅ Lx пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (Lx = cell(-log(px)))
 	vector<pair<uint8_t, int>> lx;
 	for (int i = 0; i < px.size(); i++) {
 		int l = ceil(-log(px[i].first));
 		lx.push_back({ px[i].second, l });
 	}
 
-	//записываем коды в мапу
-	map<uint8_t, string> byte_to_code;
-	map<string, uint8_t> code_to_byte;
+	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ
+	//map<uint8_t, string> byte_to_code;
+	//map<string, uint8_t> code_to_byte;
 
 	for (int i = 0; i < lx.size(); i++) {
 		string code;
@@ -226,7 +226,7 @@ void compress_archive() {
 	}
 
 	//
-	//сожмем архив и запишем результат в отдельынй файл
+	//пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 	//
 
 	//open old archive amd new archive
@@ -275,15 +275,15 @@ void compress_archive() {
 
 	//compressing
 	bitset<8> byte;
-	int pointer = 7;
+	int pointer = 0;
 	for (uint32_t i = 0; i < old_size; i++) {
 		uint8_t one_byte;
 		fread(&one_byte, sizeof(one_byte), 1, old_archive);
 		//write with codes
 		string code = byte_to_code[one_byte];
 		for (int j = 0; j < code.size(); j++) {
-			if (pointer < 0) {
-				pointer = 7;
+			if (pointer > 7) {
+				pointer = 0;
 				unsigned long ulong = byte.to_ulong();
 				byte.reset();
 				unsigned char c = static_cast<unsigned char>(ulong);
@@ -292,11 +292,11 @@ void compress_archive() {
 
 			if (code[j] == '1') {
 				byte[pointer] = 1;
-				pointer--;
+				pointer++;
 			}
 			else {
 				byte[pointer] = 0;
-				pointer--;
+				pointer++;
 			}
 		}
 	}
@@ -312,8 +312,95 @@ void compress_archive() {
 	//end?
 }
 
-void decompress_archive() {
+void decompress_archive(map<uint8_t, string>& byte_to_code, map<string, uint8_t>& code_to_byte) {
+	cout << byte_to_code.size() << " " << code_to_byte.size() << '\n';
+	//input archive name
+	char archive_name[40];
+	cout << "Input archive name" << '\n';
+	cin >> archive_name;
 
+	//open archive
+	FILE* archive = fopen(archive_name, "rb");
+
+	//signature
+	uint8_t signature[6] = { 0x69, 0x69, 0x6D, 0x61, 0x69, 0x61 };
+
+	//check archive signature
+	for (int i = 0; i < 6; i++) {
+		uint8_t current;
+		fread(&current, 1, 1, archive);
+
+		if (current != signature[i]) {
+			cout << "error" << '\n';
+			return;
+		}
+	}
+
+	//check file version
+	uint8_t version;
+	fread(&version, 1, 1, archive);
+
+	//read test file size to archive
+	uint32_t size;
+	fread(&size, sizeof(int), 1, archive);
+
+	//read file_name from archive
+	char file_name[40];
+	fread(&file_name, 40, 1, archive);
+
+	//create decompressed archive from compressed archive
+	char decompressed_archive_name[40];
+	cout << "Input decompressed archive name" << '\n';
+	cin >> decompressed_archive_name;
+	FILE* decompressed_archive = fopen(decompressed_archive_name, "wb");
+
+	//write data from archive to decomressed file
+	// 
+	//write signature to decompressed archive
+	for (int i = 0; i < 6; i++)
+		fwrite(&signature[i], 1, 1, decompressed_archive);
+
+	//write version to decompressed archive
+	fwrite(&version, 1, 1, decompressed_archive);
+
+	//write file size to decompressed archive
+	fwrite(&size, sizeof(int), 1, decompressed_archive);
+
+	//write file_name to decompressed archive
+	fwrite(&file_name, 40, 1, decompressed_archive);
+
+	/*for (uint32_t i = 0; i < size; i++) {
+		uint8_t one_byte;
+		fread(&one_byte, sizeof(one_byte), 1, archive);
+		fwrite(&one_byte, sizeof(one_byte), 1, decompressed_archive);
+	}*/
+
+	uint8_t one_byte;
+	string all_bits;
+	while (fread(&one_byte, sizeof(one_byte), 1, archive)) {
+		bitset<8> byte(one_byte);
+		for (int i = 0; i < 8; i++) {
+			if (byte[i] == 1) {
+				all_bits.push_back('1');
+			}
+			else {
+				all_bits.push_back('0');
+			}
+		}
+	}
+	cout << all_bits.size() << endl;
+	string tmp;
+	for (int i = 0; i < all_bits.size(); i++) {
+		tmp.push_back(all_bits[i]);
+		if (code_to_byte.find(tmp) != code_to_byte.end()) {
+			fwrite(&code_to_byte[tmp], 1, 1, decompressed_archive);
+			tmp.clear();
+		}
+	}
+
+	//close files
+	fclose(archive);
+	fclose(decompressed_archive);
 }
 
 int main() {
@@ -321,11 +408,11 @@ int main() {
 	/*
 	double a = 1.0;
 	unsigned long long bx = 0;
-	// убедимся, что у нас они одинакового размера.
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
 	static_assert(sizeof(a) == sizeof(bx), "sizeof(double) == sizeof(ull)");
-	// скопируем. Умные компиляторы могут сделать этот код не хуже сишного каста
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 	std::memcpy(&bx, &a, sizeof(bx));
-	// а дальше уже по классике
+	// пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	auto b = std::bitset<64>(bx);
 	cout << b << '\n';
 	*/
@@ -337,12 +424,14 @@ int main() {
 	if (mode == 0) to_archive();
 	else if (mode == 1) from_archive();
 
+	map<uint8_t, string> byte_to_code;
+	map<string, uint8_t> code_to_byte;
 	int mode_compress;
 	cout << "Input 0 if yow want to compress archive, else input 1\n";
 	cin >> mode_compress;
 
-	if (mode_compress == 0) compress_archive();
-	else if (mode_compress == 1) decompress_archive();
+	if (mode_compress == 0) compress_archive(byte_to_code, code_to_byte);
+	else if (mode_compress == 1) decompress_archive(byte_to_code, code_to_byte);
 
 	return 0;
 }
