@@ -95,32 +95,59 @@ std::vector<std::string> split_str(std::string str) {
 
 double calculateRPN(std::vector<std::string>& tokens) {
 	std::stack<double> s;
-	for (auto& i : tokens) {
-		if (i == "+" || i == "-" || i == "*" || i == "/") {
-			int e1 = s.top();
+	for (auto& it : tokens) {
+		if (priority(it[0])>1) {
+			double e1 = s.top();
 			s.pop();
 
-			int e2 = s.top();
-			s.pop();
+			/*if (!s.empty()) {*/
 
-			if (i == "+")  e1 = e2 + e1;
-			if (i == "-")  e1 = e2 - e1;
-			if (i == "*")  e1 = e2 * e1;
-			if (i == "/")  e1 = e2 / e1;
+				double e2 = s.top();
+				s.pop();
 
-			s.push(e1);
+				switch (it[0]) {
+				case '+':
+					e1 = e1 + e2;
+					break;
+				case '-':
+					e1 = e2 - e1;
+					break;
+				case '*':
+					e1 = e1 * e2;
+					break;
+				case '/':
+					if (e2 == 0) {
+						throw std::exception("X/0 - Error! Wrong argument");
+						break;
+					}
+					e1 = e1 / e2;
+					break;
+				case '^':
+					e1 = pow(e1, e2);
+					break;
+				}
+				s.push(e1);
+			/*}*/
+
+			/*else if (it == "-") {
+				std::cout << e1 << std::endl;
+				e1 = 0 - e1;
+				s.push(e1);
+			}*/
 		}
 		else {
-			s.push(stoi(i));
+			s.push(stod(it));
 		}
 	}
-
 	return s.top();
 }
 
+
 int main() {
 
-	std::string exp = "-5";
+	//std::string exp = "(1+(1+3))*(3+4)-5";
+
+	std::string exp = "2+(1+2)*(3+4)-5";
 
 	//std::string exp1;
 
