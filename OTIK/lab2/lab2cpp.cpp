@@ -263,7 +263,7 @@ void compress_archive(map<uint8_t, string>& byte_to_code, map<string, uint8_t>& 
 	//write signature to compressed archive
 	for (int i = 0; i < 6; i++)
 		fwrite(&signature[i], 1, 1, compressed_archive);
-	
+
 	//write version to compressed archive
 	fwrite(&old_version, 1, 1, compressed_archive);
 
@@ -410,36 +410,44 @@ void decompress_archive(map<uint8_t, string>& byte_to_code, map<string, uint8_t>
 	fclose(decompressed_archive);
 }
 
+void count_frequency() {
+	char file_name[40];
+	cout << "Input file name" << '\n';
+	cin >> file_name;
+
+	//open file
+	FILE* archive = fopen(file_name, "rb");
+
+	int size = 0;
+	map<uint8_t, double> frequency;
+
+	uint8_t one_byte;
+	while (fread(&one_byte, sizeof(one_byte), 1, archive)) {
+		size++;
+		frequency[one_byte]++;
+	}
+
+	//file size
+	cout << "File size: " << size << '\n';
+
+	//frequency
+	for (auto& it : frequency) {
+		cout << it.first << " " << it.second << '\n';
+	}
+
+	map<uint8_t, double> probability;
+	for (auto& it : frequency) {
+		probability[it.first] = it.second / size;
+	}
+
+	//probability
+	for (auto& it : frequency) {
+		cout << it.first << " " << it.second << '\n';
+	}
+}
+
 int main() {
-	//to binary
-	/*
-	double a = 1.0;
-	unsigned long long bx = 0;
-	// ��������, ��� � ��� ��� ����������� �������.
-	static_assert(sizeof(a) == sizeof(bx), "sizeof(double) == sizeof(ull)");
-	// ���������. ����� ����������� ����� ������� ���� ��� �� ���� ������� �����
-	std::memcpy(&bx, &a, sizeof(bx));
-	// � ������ ��� �� ��������
-	auto b = std::bitset<64>(bx);
-	cout << b << '\n';
-	*/
-
-	int mode;
-	cout << "Input 0 if yow want to make archive from file, else input 1\n";
-	cin >> mode;
-
-	if (mode == 0) to_archive();
-	else if (mode == 1) from_archive();
-
-	map<uint8_t, string> byte_to_code;
-	map<string, uint8_t> code_to_byte;
-	int mode_compress;
-	cout << "Input 0 if yow want to compress archive, else input 1\n";
-	cin >> mode_compress;
-	cout << "compress archive" << '\n';
-	/*if (mode_compress == 0)*/ compress_archive(byte_to_code, code_to_byte);
-	cout << "decompress archive" << '\n';
-	/*else if (mode_compress == 1)*/ decompress_archive(byte_to_code, code_to_byte);
+	count_frequency();
 
 	return 0;
 }
