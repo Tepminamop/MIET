@@ -252,7 +252,10 @@ double calculate_polish(vector<string>& tokens) {
 			if (i == "+")  e1 = e2 + e1;
 			if (i == "-")  e1 = e2 - e1;
 			if (i == "*")  e1 = e2 * e1;
-			if (i == "/")  e1 = e2 / e1;
+			if (i == "/") {
+				if (e1 == 0)  throw std::invalid_argument("zero division");
+				e1 = e2 / e1;
+			}
 			if (i == "^")  e1 = pow(e2, e1);
 
 			st.push(e1);
@@ -273,10 +276,11 @@ int main() {
 	//exp3 = "5*(-pow(2,3))+7";
 	//exp3 = "-5+5+(-5-6)";
 	//exp3 = "pow(pow(2,2),2)";
-	exp3 = "-pow(1+pow(2,2),-pow(1.,.1)+2*2)";//add brackets
+	exp3 = "-pow(1+pow(2,2),-pow(1.,.1)+2*2)";//add brackets, -125
 	//exp3 = "pow(-2,-2)";
 	//exp3 = "((1+2*1+pow(2,2))*(2*2))";
 	//exp3 = "pow(2,pow(2,1)+1)";
+	cin >> exp3;
 	string pow_expression = "pow";
 	parse_new_expression(exp3, pow_expression);
 
