@@ -34,8 +34,31 @@ void erase_double_unary_minus(string& s) {
 		s.replace(pos, 2, "");
 	}
 }
-
+//add brackets (use brackets count)
 void add_zero_for_unary_minus(string& s) {
+	/*for (int i = 0; i < s.size(); i++) {
+		if (s[i] == '-' && i == 0) {
+			s.insert(0, "0");
+			s.insert(0, "(");
+			i += 3;
+		}
+		else if (s[i] == '-' && s[i - 1] == '(') {
+			s.insert(i, "0");
+			s.insert(i, "(");
+			i += 3;
+			while (i < s.size()) {
+				if (s[i] == '(' || s[i] == '-' || s[i] == '+' || s[i] == '*' || s[i] == '/' || s[i] == '^' || s[i] == ')') break;
+				i++;
+				if (i == s.size()) break;
+			}
+
+			s.insert(i, ")");
+			i++;
+		}
+	}
+
+	cout << "after unary minus: " << s << endl;*/
+
 	for (int i = 0; i < s.size(); i++) {
 		if (s[i] == '-' && i == 0) {
 			s.insert(0, "0");
@@ -49,6 +72,20 @@ void add_zero_for_unary_minus(string& s) {
 }
 
 void parse_new_expression(string& s, string& exp) {
+	////need to add brackets
+	//for (int i = 0; i < s.size(); i++) {
+	//	if (s[i] != 'p') continue;
+
+	//	int left = 1;
+	//	int right = 0;
+	//	for (int j = i + 4; j < s.size(); j++) {
+	//		if (s[j] == '(') left++;
+	//		if (s[j] == ')') right++;
+
+	//		if (left == right) break;
+	//	}
+	//}
+
 	int pos = 0;
 	while (pos >= 0 && pos < s.size()) {
 		int pos = s.find(exp);
@@ -58,14 +95,31 @@ void parse_new_expression(string& s, string& exp) {
 		string string_second_argument;
 
 		int tmp = pos + 4;
+		int tmp_left = pos - 1;
+		int add_left = 0;
+		/*while (tmp_left >= 0) {
+			if (s[tmp_left] == '(') {
+				add_left++;
+				tmp_left--;
+			}
+			else {
+				break;
+			}
+		}*/
+		int left = 1 + add_left;
+		int right = 0;
 		while (s[tmp] != ',') {
 			string_first_argument.push_back(s[tmp]);
 			tmp++;
 		}
 		tmp++;
-		while (s[tmp] != ')') {
-			string_second_argument.push_back(s[tmp]);
-			tmp++;
+		while (left != right) {
+			if (s[tmp] == '(') left++;
+			if (s[tmp] == ')') right++;
+			if (left != right) {
+				string_second_argument.push_back(s[tmp]);
+				tmp++;
+			}
 		}
 
 		//now s[tmp] == ')'
@@ -216,7 +270,13 @@ int main() {
 	//exp3 = "((-(--5.45)))";
 	//exp3 = "5-5";
 	//cin >> exp3;
-	exp3 = "5*(-pow(2,3))+7";
+	//exp3 = "5*(-pow(2,3))+7";
+	//exp3 = "-5+5+(-5-6)";
+	//exp3 = "pow(pow(2,2),2)";
+	exp3 = "-pow(1+pow(2,2),-pow(1.,.1)+2*2)";//add brackets
+	//exp3 = "pow(-2,-2)";
+	//exp3 = "((1+2*1+pow(2,2))*(2*2))";
+	//exp3 = "pow(2,pow(2,1)+1)";
 	string pow_expression = "pow";
 	parse_new_expression(exp3, pow_expression);
 
