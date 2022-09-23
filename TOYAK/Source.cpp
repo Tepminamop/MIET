@@ -35,6 +35,8 @@ void stk_actions(std::stack<char> &stk, char symbol, std::string &rpn) {
 		stk.push(symbol);
 	}
 	else {
+
+
 		while (!stk.empty()) {
 			if (priority(stk.top()) >= priority(symbol)) {
 				//std::cout << stk.top() << " " << symbol << std::endl;
@@ -63,7 +65,6 @@ std::string make_RPN(std::string str) {
 					rpn.push_back(' ');
 				}
 			}
-			//rpn.push_back(' ');
 			stk_actions(stk, *it, rpn);
 		}
 	}
@@ -100,7 +101,7 @@ double calculateRPN(std::vector<std::string>& tokens) {
 			double e1 = s.top();
 			s.pop();
 
-			/*if (!s.empty()) {*/
+			if (!s.empty()) {
 
 				double e2 = s.top();
 				s.pop();
@@ -110,7 +111,13 @@ double calculateRPN(std::vector<std::string>& tokens) {
 					e1 = e1 + e2;
 					break;
 				case '-':
+					/*if (::isdigit(e1)) {e1 = e2 - e1;}
+					else
+					{
+						e1 = e2-e1;
+					}*/
 					e1 = e2 - e1;
+					
 					break;
 				case '*':
 					e1 = e1 * e2;
@@ -127,13 +134,13 @@ double calculateRPN(std::vector<std::string>& tokens) {
 					break;
 				}
 				s.push(e1);
-			/*}*/
+			}
 
-			/*else if (it == "-") {
+			else if (it == "-") {
 				std::cout << e1 << std::endl;
 				e1 = 0 - e1;
 				s.push(e1);
-			}*/
+			}
 		}
 		else {
 			s.push(stod(it));
@@ -147,8 +154,8 @@ int main() {
 
 	//std::string exp = "(1+(1+3))*(3+4)-5";
 
-	std::string exp = "2+(1+2)*(3+4)-5";
-
+	std::string exp = "2+(1+(4))*(3+4)-5";
+	std::string exp3 = "2+-3";
 	//std::string exp1;
 
 	//getline(std::cin, exp1);
