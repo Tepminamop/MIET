@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+﻿#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
@@ -6,15 +6,41 @@
 
 int write_bchain(bool& func_flag, unsigned char byte, FILE* w_file, std::vector<unsigned char>& byte_chain) {
 
-	if (byte_chain.size()>128) {
-		std::cout << "Error! chain size out of border" << std::endl;
-		return -1;
+	if (byte_chain.size() > 128) {
+		/*std::cout << "Error! chain size out of border" << std::endl;
+		return -1;*/
+		switch (func_flag)
+		{
+			unsigned char flag_byte;
+		case 0:
+			flag_byte = 127;
+			fputc(flag_byte, w_file);
+			for (int i = 0; i < 128; i++) {
+				fputc(byte_chain[0], w_file);
+				byte_chain.erase(byte_chain.begin());
+			}
+			write_bchain(func_flag, byte, w_file, byte_chain);
+			break;
+
+		case 1:
+			flag_byte = 255;
+			fputc(flag_byte, w_file);
+			fputc(byte_chain.back(), w_file);
+			for (int i = 0; i < 129; i++) {
+				//fputc(byte_chain[i], w_file);
+				//std::cout << (int)*iter<<" ";
+				byte_chain.erase(byte_chain.begin());
+
+			}
+			write_bchain(func_flag, byte, w_file, byte_chain);
+			break;
+		}
 	}
 	else {
 		switch (func_flag)
 		{
 			unsigned char flag_byte;
-			
+
 		case 0:
 			flag_byte = byte_chain.size() - 1;
 			fputc(flag_byte, w_file);
@@ -40,7 +66,7 @@ int write_bchain(bool& func_flag, unsigned char byte, FILE* w_file, std::vector<
 		}
 		func_flag = !func_flag;
 	}
-
+	
 	return 0;
 };
 
@@ -67,8 +93,8 @@ void zip(char file_name[40]) {
 			if (byte != byte_chain.back()) {
 				byte_chain.push_back(byte);
 			}
-			else if(byte_chain.size()>1){
-				
+			else if (byte_chain.size() > 1) {
+
 				byte_chain.pop_back();
 				write_bchain(func_flag, byte, archive, byte_chain);
 			}
@@ -88,12 +114,12 @@ void zip(char file_name[40]) {
 			break;
 		}
 	}
-
 	if (!byte_chain.empty()) {
 		byte_chain.pop_back();
-		write_bchain(func_flag, byte, archive, byte_chain);
+		if (byte_chain.size() > 0) {
+			write_bchain(func_flag, byte, archive, byte_chain);
+		}
 	}
-
 	fclose(file);
 	fclose(archive);
 };
@@ -105,12 +131,12 @@ void unzip() {
 	unsigned char byte;
 	int chain_size;
 
+	byte = fgetc(archive);
+
 	while (!feof(archive)) {
 
-		byte = fgetc(archive) + 1;
-
-		if ((int)byte <= 128){
-			chain_size = (int)byte;
+		if ((int)byte <= 128) {
+			chain_size = (int)byte + 1;
 			for (int i = 0; i < chain_size; ++i) {
 				byte = fgetc(archive);
 				//std::cout << (int)byte<<" ";
@@ -121,13 +147,14 @@ void unzip() {
 		}
 		else {
 			byte &= ~(1 << 7);
-			chain_size = (int)byte + 1;
+			chain_size = (int)byte + 2;
 			byte = fgetc(archive);
 			for (int i = 0; i < chain_size; ++i) {
 				fputc(byte, file);
 				//std::cout << (int)byte << " ";
 			}
 		}
+		byte = fgetc(archive);
 	}
 	fclose(file);
 	fclose(archive);
@@ -145,3 +172,4 @@ int main() {
 
 	return 0;
 }
+
