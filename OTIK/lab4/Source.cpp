@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <string>
 
 int write_bchain(bool& func_flag, unsigned char byte, FILE* w_file, std::vector<unsigned char>& byte_chain) {
 
@@ -66,6 +67,14 @@ void zip(char file_name[40]) {
 	FILE* file = fopen(file_name, "rb");
 	FILE* archive = fopen("archive.imi", "wb");
 
+	uint8_t signature[6] = { 0x69, 0x69, 0x6D, 0x61, 0x69, 0x61 };
+
+	//write signature to archive
+	for (int i = 0; i < 6; i++) {
+		fputc(signature[i], archive);
+	}
+
+
 	unsigned char byte;
 
 	std::vector<unsigned char> byte_chain;
@@ -116,6 +125,20 @@ void unzip() {
 	FILE* archive = fopen("archive.imi", "rb");
 	FILE* file = fopen("unzip", "wb");
 
+	//signature
+	uint8_t signature[6] = { 0x69, 0x69, 0x6D, 0x61, 0x69, 0x61 };
+
+	//check archive signature
+	for (int i = 0; i < 6; i++) {
+		uint8_t current;
+		fread(&current, 1, 1, archive);
+
+		if (current != signature[i]) {
+			std::cout << "error" << std::endl;
+			return;
+		}
+	}
+
 	unsigned char byte;
 	int chain_size;
 
@@ -147,6 +170,165 @@ void unzip() {
 	fclose(archive);
 };
 
+size_t byte_of_file(char file_name[40]) {
+	std::ifstream file(file_name); // файл
+
+	size_t s = 0; // счетчик символов
+	if (!(file.is_open())) {
+		std::cout << "File not found" << std::endl;
+	}
+	while (!file.eof()) { // пока не достигнут конец файлв
+		file.get();       // читать по одному символу
+		s++;              // и увеличивать счетчик
+	}
+
+	file.close(); // обязательно закрыть
+
+	s--; // убираем лишнюю итерацию
+
+	return s; // вернуть число символов/байтов
+}
+
+void smart_archive(char file_name[40]) {
+	zip(file_name);
+	size_t file_s = byte_of_file(file_name);	
+	char archive_name[40] = "archive.imi";
+	size_t archive_s = byte_of_file(archive_name);
+
+	if (archive_s > file_s) {
+		FILE* file = fopen(file_name, "rb");
+		FILE* archive = fopen("archive.imi", "wb");
+		while (!feof(file)) {
+			unsigned char byte = fgetc(file);
+			if (!feof(file)) {
+				fputc(byte, archive);
+			}
+		}
+	}
+}
+
+int entrances_ij_string(char path[40]) {
+	char aiaj[2];
+	std::cout << "Input ai: ";
+	std::cin >> aiaj[0];
+	std::cout << "Input aj: ";
+	std::cin >> aiaj[1];
+
+	std::string s1, s2 = "", s3 = "";
+
+	s2 += aiaj[0]; s2 += aiaj[1];
+
+	size_t cnt = 0;
+	std::ifstream file(path); // файл
+
+	if (!(file.is_open())) {
+		std::cout << "File not found" << std::endl;
+	}
+
+	int arr[256] = {};
+
+	while (getline(file, s1)) {
+
+		for (std::string::size_type i = 0; i < s1.length(); ++i) {
+			if (s1[i] == s2[0])
+				if (s1.substr(i, s2.length()) == s2) {
+					++cnt;
+				}
+		}
+		for (int k = 0; k < 255; ++k) {
+			unsigned char ai = k;
+			s3 = aiaj[1];
+			s3 += ai;
+			for (std::string::size_type i = 0; i < s1.length(); ++i) {
+				if (s1[i] == s3[0])
+					if (s1.substr(i, s3.length()) == s3) {
+						arr[k]++;
+					}
+			}
+		}
+
+	}
+	for (int k = 0; k < 255; ++k) {
+		unsigned char ai = k;
+		if (arr[k] > 0) {
+			std::cout << aiaj[1] << ai << "= " << arr[k] << "; ";
+		}
+	}
+
+	file.close();
+	std::cout << cnt;
+	return 0;
+}
+
+int probability(char file_name[40]) {
+	char ai,aj;
+	std::cout << "Input ai: ";
+	std::cin >> ai;
+	std::cout << "Input aj: ";
+	std::cin >> aj;
+
+	std::ifstream file(file_name); // файл
+
+	double aj_s = 0, ai_s =0; // счетчик символов
+	double ret1, ret2;
+	if (!(file.is_open())) {
+		std::cout << "File not found" << std::endl;
+	}
+	while (!file.eof()) { // пока не достигнут конец файлв
+		char scan = file.get();// читать по одному символу
+		if (!file.eof() && scan == aj) {
+			aj_s++;              // и увеличивать счетчик
+		}
+
+		if (!file.eof() && scan == ai) {
+			ai_s++;              // и увеличивать счетчик
+		}
+
+	}
+	file.close();
+
+	double file_s = byte_of_file(file_name);
+
+	std::cout << ai_s << " " << aj_s << " " << file_s << std::endl;
+
+	ret2 = ((ai_s / file_s) * (aj_s / (file_s - 1))) / (aj_s / (file_s - 1));
+	std::cout << "(ai|aj)= " << ret2 << std::endl;
+	ret1 = (double)(ai_s / file_s);
+	std::cout << "ai= " << ret1 << std::endl;
+	return 0;
+}
+
+int information_s(char file_name[40]) {
+
+	double bytes = byte_of_file(file_name);
+	std::string s1;
+	int arr[256] = {};
+
+	std::ifstream file(file_name); // файл
+
+	if (!(file.is_open())) {
+		std::cout << "File not found" << std::endl;
+	}
+
+	while (getline(file, s1)) {
+
+		
+		for (int k = 0; k < 255; ++k) {
+			unsigned char ai = k;
+			for (std::string::size_type i = 0; i < s1.length(); ++i) {
+				if (s1[i] == k)	
+					arr[k]++;
+			}
+		}
+
+	}
+
+	for (int k = 0; k < 255; ++k) {
+
+	}
+	
+}
+
 
 int main() {
 
@@ -154,8 +336,8 @@ int main() {
 	char file_name[40];
 	std::cin >> file_name;
 
-	zip(file_name);
-	unzip();
+	//smart_archive(file_name);
+	probability(file_name);
 
 	return 0;
 }
