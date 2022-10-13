@@ -61,6 +61,9 @@ void make_hamming() {
 		for (int i = 0; i < positions.size(); i++) {
 			int current_position = positions[i];
 			int counter = 0;
+			if (current_position >= blocks[j].size()) {
+				break;
+			}
 			while (current_position < blocks[j].size()) {
 				for (int k = current_position; k < min((int)blocks[j].size(), current_position + positions[i]); k++) {
 					if (blocks[j][k] == '1') {
@@ -162,6 +165,114 @@ void decode_hamming() {
 		cout << blocks[i] << endl;
 	}
 
+	//here we can change bit to wrong bit in order to check program
+	if (blocks[0][3] == '1') {
+		blocks[0][3] = '0';
+	}
+	else {
+		blocks[0][3] = '1';
+	}
+
+	//erase control bits, but first save them
+	vector<vector<char>> control_bits(blocks.size());
+	for (int i = 0; i < blocks.size(); i++) {
+		int erase_counter = 0;
+		for (int j = 0; j < positions.size(); j++) {
+			if (positions[j] >= blocks[i].size()) break;
+			control_bits[i].push_back(blocks[i][positions[j] - erase_counter]);
+			blocks[i].erase(positions[j] - erase_counter, 1);
+			erase_counter++;
+		}
+	}
+
+	//adding control bits (6 for every block)
+	for (int i = 0; i < blocks.size(); i++) {
+		for (int j = 0; j < positions.size(); j++) {
+			int pos = positions[j];
+			if (pos > blocks[i].size()) {
+				break;
+			}
+
+			blocks[i].insert(pos, 1, '0');
+		}
+	}
+	
+	//calculating and checking control bits
+	//calculate control bits
+	vector<vector<char>> check_control_bits(blocks.size());
+	for (int j = 0; j < blocks.size(); j++) {
+		for (int i = 0; i < positions.size(); i++) {
+			int current_position = positions[i];
+			int counter = 0;
+			if (current_position >= blocks[j].size()) {
+				break;
+			}
+			while (current_position < blocks[j].size()) {
+				for (int k = current_position; k < min((int)blocks[j].size(), current_position + positions[i]); k++) {
+					if (blocks[j][k] == '1') {
+						counter++;
+					}
+				}
+				current_position += 2 * positions[i];
+			}
+
+			if (counter % 2 == 0) {
+				check_control_bits[j].push_back('0');
+				blocks[j][positions[i]] = '0';
+			}
+			else {
+				check_control_bits[j].push_back('1');
+				blocks[j][positions[i]] = '1';
+			}
+		}
+	}
+
+	//checking control bits and finding wrong bit if exists, sizes are equal
+	vector<int> wrong_control_bits_places;
+	for (int i = 0; i < control_bits.size(); i++) {
+		for (int j = 0; j < control_bits[i].size(); j++) {
+			cout << control_bits[i][j] << " ";
+		}
+		cout << endl;
+	}
+	cout << endl << endl;
+	for (int i = 0; i < check_control_bits.size(); i++) {
+		for (int j = 0; j < check_control_bits[i].size(); j++) {
+			cout << check_control_bits[i][j] << " ";
+		}
+		cout << endl;
+	}
+
+	//here we checking control bits
+	for (int i = 0; i < check_control_bits.size(); i++) {
+		for (int j = 0; j < check_control_bits[i].size(); j++) {
+			if (check_control_bits[i][j] != control_bits[i][j]) {
+				wrong_control_bits_places.push_back(pow(2, j));
+			}
+		}
+
+		//end block check
+		int wrong_position = 0;
+		bool wrong = false;
+		for (int k = 0; k < wrong_control_bits_places.size(); k++) {
+			wrong_position += wrong_control_bits_places[k];
+			wrong = true;
+		}
+
+		if (wrong) {
+			cout << "wrong: " << wrong_position << endl;
+			if (blocks[i][wrong_position] == '1') {
+				blocks[i][wrong_position] = '0';
+			}
+			else {
+				blocks[i][wrong_position] = '1';
+			}
+		}
+
+		wrong_control_bits_places.clear();
+	}
+
+	//erasing control bits
 	for (int i = 0; i < blocks.size(); i++) {
 		int erase_counter = 0;
 		for (int j = 0; j < positions.size(); j++) {
@@ -170,12 +281,6 @@ void decode_hamming() {
 			erase_counter++;
 		}
 	}
-
-	int bits_count = 0;
-	for (int i = 0; i < blocks.size(); i++) {
-		bits_count += blocks[i].size();
-	}
-	cout << "bits count: " << bits_count << endl;
 
 	//wiriting result to file
 	for (int i = 0; i < blocks.size(); i++) {
