@@ -4,6 +4,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <math.h>
 
 int write_bchain(bool& func_flag, unsigned char byte, FILE* w_file, std::vector<unsigned char>& byte_chain) {
 
@@ -67,13 +68,12 @@ void zip(char file_name[40]) {
 	FILE* file = fopen(file_name, "rb");
 	FILE* archive = fopen("archive.imi", "wb");
 
-	uint8_t signature[6] = { 0x69, 0x69, 0x6D, 0x61, 0x69, 0x61 };
+	uint8_t signature[6] = { 0x69, 0x69, 0x6D, 0x61, 0x69, 0x61};
 
 	//write signature to archive
 	for (int i = 0; i < 6; i++) {
 		fputc(signature[i], archive);
 	}
-
 
 	unsigned char byte;
 
@@ -303,6 +303,7 @@ int information_s(char file_name[40]) {
 	double bytes = byte_of_file(file_name);
 	std::string s1;
 	int arr[256] = {};
+	double infromation = 0;
 
 	std::ifstream file(file_name); // פאיכ
 
@@ -324,9 +325,15 @@ int information_s(char file_name[40]) {
 	}
 
 	for (int k = 0; k < 255; ++k) {
-
+		if (arr[k] > 0) {
+			infromation += -1 * (log((double)arr[k] / bytes) / (log(2)));
+			//infromation += -1 * (log((double)arr[k] / 256) / (log(2)));
+		}
 	}
+
+	std::cout << "Information = " << infromation << std:: endl;
 	
+	return 0;
 }
 
 
@@ -337,7 +344,8 @@ int main() {
 	std::cin >> file_name;
 
 	//smart_archive(file_name);
-	probability(file_name);
+	//probability(file_name);
+	//information_s(file_name);
 
 	return 0;
 }
